@@ -1,15 +1,18 @@
-FROM node:alpine
-MAINTAINER Scavin <scavin@appinn.com>
+FROM alpine AS builder
 
-ENV LANG C.UTF-8
+RUN apk add --no-cache nodejs npm python3 make g++ git
+RUN git clone https://github.com/NetrisTV/ws-scrcpy.git
 WORKDIR /ws-scrcpy
-
-RUN npm install -g node-gyp
-RUN apt update;apt install android-tools-adb -y
-RUN git clone https://github.com/NetrisTV/ws-scrcpy.git .
 RUN npm install
 RUN npm run dist
+WORKDIR dist
+RUN npm install
 
-EXPOSE 8000
+FROM alpine AS runner
+LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 
-CMD ["node","dist/index.js"]
+RUN apk add --no-cache android-tools npm
+COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
+
+WORKDIR /ws-scrcpy
+CMD ["npm", "start"]
