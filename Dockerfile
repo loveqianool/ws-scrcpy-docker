@@ -14,7 +14,7 @@ LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
 COPY --from=builder /ws-scrcpy/node_modules /ws-scrcpy/node_modules
 RUN apk add --no-cache android-tools npm
-RUN apk add --update \
+RUN apk add --no-cache \
           python3 \
           make \
           g++ && cd /ws-scrcpy/node_modules/node-pty && yarn run install
