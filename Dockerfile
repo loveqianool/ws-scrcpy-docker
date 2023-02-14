@@ -11,8 +11,11 @@ RUN npm install
 FROM alpine AS runner
 LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 
-RUN apk add --no-cache android-tools npm python3
 COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
+RUN apk add --no-cache android-tools npm
+RUN npm install -g node-gyp
+
+EXPOSE 8000
 
 WORKDIR /ws-scrcpy
 CMD ["npm", "start"]
