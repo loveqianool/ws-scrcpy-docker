@@ -12,8 +12,12 @@ FROM alpine AS runner
 LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 
 COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
-RUN apk add --no-cache android-tools npm python3 make g++
-RUN npm install -g node-gyp
+COPY --from=builder /ws-scrcpy/node_modules /ws-scrcpy/node_modules
+RUN apk add --no-cache android-tools npm
+RUN apk add --update \
+          python3 \
+          make \
+          g++ && cd node_modules/node-pty && yarn run install
 
 EXPOSE 8000
 
