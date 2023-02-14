@@ -17,7 +17,7 @@ RUN apk add --no-cache android-tools npm
 RUN apk add --update \
           python3 \
           make \
-          g++ && cd node_modules/node-pty && yarn run install
+          g++ && cd /ws-scrcpy/node_modules/node-pty && yarn run install
 
 EXPOSE 8000
 
