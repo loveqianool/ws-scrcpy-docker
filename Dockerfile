@@ -14,7 +14,7 @@ LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 RUN apk add --no-cache android-tools npm
 
 COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
-COPY ./start.sh /ws-scrcpy/start.sh
+COPY start.sh /ws-scrcpy/start.sh
 
 WORKDIR /ws-scrcpy
 
