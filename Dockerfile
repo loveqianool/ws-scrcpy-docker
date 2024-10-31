@@ -14,8 +14,20 @@ LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 RUN apk add --no-cache android-tools npm
 
 COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
-COPY start.sh /ws-scrcpy/start.sh
+
+RUN cat > /ws-scrcpy/z.sh <<'EOT'
+#!/bin/sh
+cd /ws-scrcpy
+
+for i in $(echo $host | sed "s/,/ /g")
+do
+    adb connect $i:5555
+done
+
+npm start
+
+EOT
 
 WORKDIR /ws-scrcpy
 
-CMD ["sh", "start.sh"]
+CMD ["sh", "/ws-scrcpy/z.sh"]
