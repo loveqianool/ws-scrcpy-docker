@@ -1,4 +1,4 @@
-FROM alpine:3.14 AS builder
+FROM alpine:edge AS builder
 
 RUN apk add --no-cache nodejs npm python3 make g++ git
 RUN git clone https://github.com/NetrisTV/ws-scrcpy.git
@@ -8,7 +8,7 @@ RUN npm run dist
 WORKDIR dist
 RUN npm install
 
-FROM alpine:3.14 AS runner
+FROM alpine:edge AS runner
 LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 
 RUN apk add --no-cache android-tools npm
