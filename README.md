@@ -8,8 +8,11 @@ https://github.com/scavin/ws-scrcpy-docker/
 ## 使用
 
 ```
-docker run --name ws-scrcpy -d -p 8000:8000 scavin/ws-scrcpy
-docker exec ws-scrcpy adb connect android.device.ip:5555
+docker run -dit --name scrcpy --hostname scrcpy \
+-v /opt/docker/scrcpy:/data \
+-p 8124:8000/tcp \
+-e host=redroid \
+ghcr.io/loveqianool/ws-scrcpy-docker
 ```
 
 注意修改 android.device.ip 为 Android 设备 IP 地址。
