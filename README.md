@@ -15,7 +15,7 @@ docker run -dit --name scrcpy --hostname scrcpy \
 ghcr.io/loveqianool/ws-scrcpy-docker
 ```
 
-注意修改 android.device.ip 为 Android 设备 IP 地址。
+注意修改 host= 为 Android 设备 IP 地址。
 
 ## 打开 Android 设备的 adb over Wi-Fi
 
