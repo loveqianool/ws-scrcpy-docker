@@ -11,7 +11,7 @@ https://github.com/scavin/ws-scrcpy-docker/
 docker run -dit --name scrcpy --hostname scrcpy \
 -v /opt/docker/scrcpy:/data \
 -p 8124:8000/tcp \
--e host=redroid \
+-e host=172.17.0.2:5555,172.17.0.231:5555,redroid \
 ghcr.io/loveqianool/ws-scrcpy-docker
 ```
 
