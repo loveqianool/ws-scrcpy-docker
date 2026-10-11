@@ -1,5 +1,4 @@
 name: Build Docker Image
-
 on:
   workflow_dispatch:
   schedule:
@@ -69,3 +68,33 @@ jobs:
           manifest-list: |
             ghcr.io/${{ github.repository }}:amd64
             ghcr.io/${{ github.repository }}:arm64
+
+  cleanup:
+    needs: manifest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean old amd64 versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 5
+          exclude-tags: 'latest,arm64'
+          dry-run: false
+
+      - name: Clean old arm64 versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 5
+          exclude-tags: 'latest,amd64'
+          dry-run: false
+
+      - name: Delete untagged orphan images
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          delete-only-untagged-versions: true
+          dry-run: false
