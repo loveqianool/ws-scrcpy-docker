@@ -1,33 +1,47 @@
 FROM alpine:edge AS builder
 
-RUN apk add --no-cache nodejs npm python3 make g++ git
-RUN git clone https://github.com/NetrisTV/ws-scrcpy.git
+RUN apk add --no-cache nodejs npm python3 make g++ git && \
+    git clone --depth 1 https://github.com/NetrisTV/ws-scrcpy.git /ws-scrcpy && \
+    rm -rf /ws-scrcpy/.git
+
 WORKDIR /ws-scrcpy
-RUN npm install
-RUN npm run dist
-WORKDIR dist
-RUN npm install
+RUN npm install --no-fund --no-audit && npm run dist
+
+WORKDIR /ws-scrcpy/dist
+RUN npm install --production --no-fund --no-audit
+
 
 FROM alpine:edge AS runner
-LABEL maintainer="Vitaly Repin <vitaly.repin@gmail.com>"
 
-RUN apk add --no-cache android-tools npm
+LABEL org.opencontainers.image.authors="Vitaly Repin <vitaly.repin@gmail.com>"
+LABEL org.opencontainers.image.source="https://github.com/NetrisTV/ws-scrcpy"
 
-COPY --from=builder /ws-scrcpy/dist /ws-scrcpy
+RUN apk add --no-cache android-tools nodejs npm && \
+    adduser -D -h /ws-scrcpy appuser
 
-RUN cat > /ws-scrcpy/z.sh <<'EOT'
+COPY --from=builder --chown=appuser:appuser /ws-scrcpy/dist /ws-scrcpy
+
+COPY <<-'SH' /ws-scrcpy/entrypoint.sh
 #!/bin/sh
+set -e
 cd /ws-scrcpy
 
-for i in $(echo $host | sed "s/,/ /g")
-do
-    adb connect $i:5555
-done
+if [ -n "${host:-}" ]; then
+    OLD_IFS="$IFS"
+    IFS=,
+    for dev in $host; do
+        [ -z "$dev" ] && continue
+        echo "connect adb device: ${dev}:5555"
+        adb connect "${dev}:5555" || true
+    done
+    IFS="$OLD_IFS"
+fi
 
-npm start
+exec npm start
+SH
 
-EOT
+RUN chmod +x /ws-scrcpy/entrypoint.sh
 
+USER appuser
 WORKDIR /ws-scrcpy
-
-CMD ["sh", "/ws-scrcpy/z.sh"]
+CMD ["/ws-scrcpy/entrypoint.sh"]
