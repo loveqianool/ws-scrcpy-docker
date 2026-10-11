@@ -44,6 +44,9 @@ jobs:
           tags: ghcr.io/${{ github.repository }}:${{ matrix.platform.name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
 
   manifest:
     needs: build
@@ -56,17 +59,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create & push manifest list for latest
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          target: manifest
-          manifest: true
-          push: true
-          tags: ghcr.io/${{ github.repository }}:latest
-          platforms: linux/amd64,linux/arm64
-          manifest-list: |
-            ghcr.io/${{ github.repository }}:amd64
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create & push manifest list :latest
+        run: |
+          docker buildx imagetools create -t ghcr.io/${{ github.repository }}:latest \
+            ghcr.io/${{ github.repository }}:amd64 \
             ghcr.io/${{ github.repository }}:arm64
 
   cleanup:
